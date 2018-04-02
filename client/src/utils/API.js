@@ -1,20 +1,18 @@
 import axios from "axios";
 
 export default {
-  // Gets all makeup
-  getProducts: function() {
-    return axios.get("/api/products");
+  getProducts: function () {
+    return axios.get("http://makeup-api.herokuapp.com/api/v1/products.json");
   },
-  // Gets the book with the given id
-  getProducts: function(id) {
-    return axios.get("/api/products/" + id);
+  getProduct: function (brand, product_type) {
+    return axios.get("http://makeup-api.herokuapp.com/api/v1/products.json" + brand + product_type);
   },
-  // Deletes the book with the given id
-  deleteProducts: function(id) {
-    return axios.delete("/api/products/" + id);
+  // Saves a product to the database
+  saveProduct: function(makeupData) {
+    return axios.post("/api/makeup", makeupData);
   },
-  // Saves a book to the database
-  saveProducts: function(productsData) {
-    return axios.post("/api/products", productsData);
-  }
-};
+  // Deletes the product with the given id
+  deleteProduct: function(id) {
+    return axios.delete("/api/makeup/" + id);
+  },
+}

@@ -1,14 +1,19 @@
 import React, { Component } from "react";
 import Jumbotron from "../../components/Jumbotron";
 import API from "../../utils/API";
-import DeleteBtn from "../../components/DeleteBtn";
+import { Link } from "react-router-dom";
 import { Col, Row, Container } from "../../components/Grid";
 import { List, ListItem } from "../../components/List";
-import { Input, TextArea, FormBtn } from "../../components/Form";
+import DeleteBtn from "../../components/DeleteBtn";
+import { Input, FormBtn } from "../../components/Form";
 
 class Products extends Component {
   state = {
-    makeup: []
+    brand: "",
+    product_type: "",
+    price: "",
+    makeup: [],
+    error: ""
   };
 
   componentDidMount() {
@@ -17,9 +22,33 @@ class Products extends Component {
 
   loadProducts = () => {
     API.getProducts()
-      .then(res => this.setState({ makeup: res.data }))
+      .then(res => 
+        this.setState({ makeup: res.data, brand: "", product_type: "", price: "" })
+      )
       .catch(err => console.log(err));
   };
+
+  handleInputChange = event => {
+    const { name, value } = event.target;
+    this.setState({
+      [name]: value
+    });   
+    console.log(name)
+    };
+
+  handleFormSubmit = event => {
+    event.preventDefault();
+    API.getProduct(this.state.brand, this.state.product_type);
+    if (this.state.brand && this.state.product_type && this.state.price) {
+      API.saveProduct({ 
+        brand: this.state.brand,
+        product_type: this.state.product_type,
+        price: this.state.price
+      })
+      .then(res => API.getProduct())
+      .catch(err => console.log(err));
+  }
+};
 
   render() {
     return (
@@ -30,28 +59,43 @@ class Products extends Component {
               <h1 className="text-center">Find the makeup item you need!</h1>
             </Jumbotron>
             <form>
-              <Input name="brand" placeholder="Brand (required)" />
-              <Input name="name" placeholder="Product Type (required)" />
-              <FormBtn>Submit</FormBtn>
+              <Input 
+                value={this.state.brand}
+                onChange={this.handleInputChange} 
+                name="brand" 
+                placeholder="Brand (required)" 
+              />
+              <Input 
+                value={this.state.product_type}
+                onChange={this.handleInputChange} 
+                name="product_type" 
+                placeholder="Product Type (required)" 
+              />
+              <FormBtn 
+                disabled={!(this.state.brand && this.state.product_type)}
+                onClick={this.handleFormSubmit}
+              >
+                Submit
+              </FormBtn>
             </form>
           </Col>
           <Col size="md-10 md-offset-1 sm-12">
             <Jumbotron>
-              <h1>Saved Makeup Products</h1>
+              <h1 className="text-center">My Makeup List</h1>
             </Jumbotron>
-            {/* {this.state.books.length ? (
+            {this.state.makeup.length ? (
               <List>
-                {this.state.books.map(book => (
-                  <ListItem key={book._id}>
-                    <a href={"/books/" + book._id}>
+                {this.state.makeup.map(makeup => (
+                  <ListItem key={makeup.id}>
+                    <Link to={"/makeup/" + makeup.id}>
                       <strong>
-                        {book.title} by {book.author}
+                          {makeup.product_type} by {makeup.brand}
                       </strong>
-                    </a>
-                    <DeleteBtn />
+                    </Link>
+                    <DeleteBtn onClick={() => this.deleteProduct(makeup.id)}/>
                   </ListItem>
                 ))}
-              </List> */}
+              </List>
             ) : (
               <h3>No Results to Display</h3>
             )}
