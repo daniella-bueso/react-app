@@ -5,6 +5,7 @@ const productSchema = new Schema({
   brand: { type: String, required: true },
   product_type: { type: String, required: true },
   price: {type: String},
+  url: { type: String},
   date: { type: Date, default: Date.now }
 });
 

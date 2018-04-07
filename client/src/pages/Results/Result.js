@@ -4,7 +4,7 @@ import { Col, Row, Container } from "../../components/Grid";
 import Jumbotron from "../../components/Jumbotron";
 import API from "../../utils/API";
 
-class Result extends Component {
+class Results extends Component {
   state = {
     product: {}
   };
@@ -54,4 +54,4 @@ class Result extends Component {
   }
 }
 
-export default Result;
+export default Results;

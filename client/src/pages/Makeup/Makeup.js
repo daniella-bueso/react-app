@@ -12,20 +12,8 @@ class Products extends Component {
     brand: "",
     product_type: "",
     price: "",
-    makeup: [],
+    products: [],
     error: ""
-  };
-
-  componentDidMount() {
-    this.loadProducts();
-  }
-
-  loadProducts = () => {
-    API.getProducts()
-      .then(res => 
-        this.setState({ makeup: res.data, brand: "", product_type: "", price: "" })
-      )
-      .catch(err => console.log(err));
   };
 
   handleInputChange = event => {
@@ -36,19 +24,32 @@ class Products extends Component {
     console.log(name)
     };
 
-  handleFormSubmit = event => {
-    event.preventDefault();
-    API.getProduct(this.state.brand, this.state.product_type);
-    if (this.state.brand && this.state.product_type && this.state.price) {
-      API.saveProduct({ 
+    getProduct = () => {
+      API.getProduct({
         brand: this.state.brand,
         product_type: this.state.product_type,
-        price: this.state.price
       })
-      .then(res => API.getProduct())
+      .then(res => 
+        this.setState({
+          products: res.data,
+          message: !res.data.length
+            ? "No New Products Found, try a different one"
+            : ""
+          }),
+      )
       .catch(err => console.log(err));
-  }
-};
+    };
+
+  handleFormSubmit = event => {
+    event.preventDefault();
+    this.getProduct();
+    
+  };
+  
+  handleProductSave = id => {
+    const product = this.state.products.find(product => product.id === id);
+    API.saveProduct(product).then(res => this.getProduct())
+  };
 
   render() {
     return (
@@ -81,23 +82,26 @@ class Products extends Component {
           </Col>
           <Col size="md-10 md-offset-1 sm-12">
             <Jumbotron>
-              <h1 className="text-center">My Makeup List</h1>
+              <h1 className="text-center">Results</h1>
             </Jumbotron>
-            {this.state.makeup.length ? (
+            {this.state.products.length ? (
               <List>
-                {this.state.makeup.map(makeup => (
-                  <ListItem key={makeup.id}>
-                    <Link to={"/makeup/" + makeup.id}>
-                      <strong>
-                          {makeup.product_type} by {makeup.brand}
-                      </strong>
-                    </Link>
-                    <DeleteBtn onClick={() => this.deleteProduct(makeup.id)}/>
+                {this.state.products.map(product => (
+                  <ListItem 
+                    key={product.id}
+                    id={product.id}
+                    brand={product.brand}
+                    name={product.name}
+                    url={product.product_link}
+                    handleClick={this.handleProductSave}
+                    buttonText="Save Product"
+                  >
+                  <DeleteBtn onClick={() => this.deleteProduct(product.id)}/>
                   </ListItem>
                 ))}
               </List>
             ) : (
-              <h3>No Results to Display</h3>
+              <h3 className="text-center">{this.state.message}</h3>
             )}
           </Col>
         </Row>

@@ -1,7 +1,10 @@
 const router = require("express").Router();
+const productRoutes = require("./product");
 const makeupRoutes = require("./makeup");
 
-// Makeup routes
+// Product routes
+router.use("/products", productRoutes);
+
 router.use("/makeup", makeupRoutes);
 
 module.exports = router;
